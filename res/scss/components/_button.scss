@@ -1,0 +1,27 @@
+.button {
+  display: flex;
+  flex-flow: row nowrap;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin-inline-start: .5rem;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+
+    i {
+      text-decoration: none;
+    }
+  }
+
+  i {
+    height: 1rem;
+    width: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-inline-end: .5rem;
+  }
+}
