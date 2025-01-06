@@ -35,10 +35,19 @@ describe('Hello World Test', () => {
         cy.get('#uxtheme-dll + label').click();
         cy.contains('Selected 1');
         cy.get('#netsh-exe + label').click();
-        cy.contains('Select All');
+        cy.contains('None Selected');
     });
 
     it('should check that aries.sys is disabled, and therefore not interactive', () => {
         cy.get('#aries-sys').should('be.disabled');
+    });
+
+    it('should trigger an alert with the correct message', () => {
+        cy.get('#select-all').click();
+        cy.get('#download-button').click();
+        cy.on('window:alert', (str) => {
+            expect(str).to.include('Peach:\n\\Device\\HarddiskVolume1\\Windows\\System32\\uxtheme.dll');
+            expect(str).to.include('Luigi:\n\\Device\\HarddiskVolume2\\Windows\\System32\\netsh.exe');
+        });
     });
 });

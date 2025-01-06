@@ -1,3 +1,4 @@
+// Mocked API response/data
 const stub = [
   {
     name: "smss.exe",
@@ -29,18 +30,33 @@ const stub = [
     path: "\\Device\\HarddiskVolume1\\Windows\\System32\\cryptbase.dll",
     status: "scheduled",
   },
-  { name: "7za.exe", device: "Toad", path: "\\Device\\HarddiskVolume1\\temp\\7za.exe", status: "scheduled" },
+  {
+    name: "7za.exe",
+    device: "Toad",
+    path: "\\Device\\HarddiskVolume1\\temp\\7za.exe",
+    status: "scheduled"
+  },
 ];
 
-const tableHeadings = [
-  "",
-  "Name",
-  "Device",
-  "Path",
-  "Status"
-];
+/**
+ * @desc A function to capitalise the first letter of a string.
+ * @param {string} string - The string to capitalise.
+ */
+const capitaliseString = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
 
-const generateCheckbox = (name, status = false) => {
+/**
+ * @desc A function to generate a checkbox element.
+ * @param {string} name - The name of the checkbox.
+ * @param {string} status - The status of the checkbox.
+ * @param {string} path - The path of the checkbox.
+ * @param {string} device - The device of the checkbox.
+ * @returns {HTMLElement} - The checkbox element.
+ * @example
+ * const checkbox = generateCheckbox('smss.exe', 'available', '\\Device\\HarddiskVolume2\\Windows\\System32\\smss.exe', 'Mario');
+ */
+const generateCheckbox = (name, status = undefined, path = undefined, device = undefined) => {
   // Container for checkbox, label, and checkmark
   const checkboxContainer = document.createElement('span');
   checkboxContainer.classList.add('checkbox-container');
@@ -50,10 +66,10 @@ const generateCheckbox = (name, status = false) => {
   checkbox.setAttribute('type', 'checkbox');
   checkbox.id = name.replace('.', '-');
   checkbox.classList.add('checkbox');
-
-  if (status === 'scheduled') {
-    checkbox.setAttribute('disabled', true);
-  }
+  checkbox.dataset.name = name;
+  if (path !== undefined) checkbox.dataset.path = path;
+  if (device !== undefined) checkbox.dataset.device = device;
+  if (status !== 'available' && status !== undefined) checkbox.setAttribute('disabled', true);
 
   // Checkbox label
   const label = document.createElement('label');
@@ -64,7 +80,7 @@ const generateCheckbox = (name, status = false) => {
   label.htmlFor = name.replace('.', '-');
   if (!status) {
     label.id = 'select-all-label';
-    label.innerText = 'Select All';
+    label.innerText = 'None Selected';
   }
 
   // Checkbox checkmark
@@ -80,67 +96,75 @@ const generateCheckbox = (name, status = false) => {
   return checkboxContainer;
 };
 
-const generateSelectAll = () =>{
-  // Holy macaroni, this is a lot of code for a simple checkbox
+/**
+ * @desc A function to generate the select all checkbox.
+ */
+const generateSelectAll = () => {
   const gridHeader = document.getElementById('multi-select__head');
-  const checkboxContainer = generateCheckbox('select-all', false);
+  const checkboxContainer = generateCheckbox('select-all');
 
   gridHeader.insertBefore(checkboxContainer, gridHeader.firstChild);
 };
 
+/**
+ * @desc A function to generate the grid headers.
+ */
 const generateGridHeaders = () => {
+  // Get the grid container
   const gridContainer = document.getElementById("multi-select__grid");
 
-  const column1 = document.createElement('span');
-  column1.innerText = '';
+  // Assume there's always a checkbox column and create it
+  const checkboxColumn = document.createElement('span');
+  checkboxColumn.classList.add('multi-select__header');
+  checkboxColumn.innerText = '';
+  gridContainer.appendChild(checkboxColumn);
 
-  const column2 = document.createElement('span');
-  column2.innerText = 'Name';
-
-  const column3 = document.createElement('span');
-  column3.innerText = 'Device';
-
-  const column4 = document.createElement('span');
-  column4.innerText = 'Path';
-
-  const column5 = document.createElement('span');
-  column5.innerText = 'Status';
-
-  gridContainer.appendChild(column1);
-  gridContainer.appendChild(column2);
-  gridContainer.appendChild(column3);
-  gridContainer.appendChild(column4);
-  gridContainer.appendChild(column5);
+  // Create the loop for the columns
+  Object.keys(stub[0]).forEach((key, i) => {
+    const column = document.createElement('span');
+    column.classList.add('multi-select__header');
+    column.innerText = capitaliseString(key);
+    gridContainer.appendChild(column);
+  });
 };
 
+/**
+ * @desc A function to generate the grid rows.
+ */
 const generateGridRows = () => {
   const gridContainer = document.getElementById("multi-select__grid");
   
-  for (let i = 0; i < stub.length; i++) {
-    const checkboxContainer = generateCheckbox(stub[i].name, stub[i].status);
+  stub.forEach((item) => {
+    const checkboxContainer = generateCheckbox(item.name, item.status, item.path, item.device);
 
     const nameColumn = document.createElement('span');
-    nameColumn.innerText = stub[i].name;
+    nameColumn.innerText = item.name;
 
     const deviceColumn = document.createElement('span');
-    deviceColumn.innerText = stub[i].device;
+    deviceColumn.innerText = capitaliseString(item.device);
 
     const pathColumn = document.createElement('span');
     pathColumn.classList.add('pathname');
-    pathColumn.innerText = stub[i].path;
+    pathColumn.id = `${item.name.replace('.', '-')}-path`;
+    pathColumn.innerText = capitaliseString(item.path);
 
     const statusColumn = document.createElement('span');
-    statusColumn.dataset.availability = stub[i].status;
-    statusColumn.innerText = stub[i].status;
+    statusColumn.dataset.availability = item.status;
+    statusColumn.innerText = capitaliseString(item.status);
 
     gridContainer.appendChild(checkboxContainer);
     gridContainer.appendChild(nameColumn);
     gridContainer.appendChild(deviceColumn);
     gridContainer.appendChild(pathColumn);
     gridContainer.appendChild(statusColumn);
-  };
+  });
 };
 
+/**
+ * @desc A function to add a class to the select all checkbox if some but not all checkboxes are selected.
+ * @param {HTMLElement} selectAll - The select all checkbox.
+ * @param {boolean} doWeAdd - Whether or not to add the class.
+ */
 const selectAllPartialAdder = (selectAll, doWeAdd) => {
   if (doWeAdd) {
     selectAll.classList.add('partial');
@@ -149,19 +173,29 @@ const selectAllPartialAdder = (selectAll, doWeAdd) => {
   }
 };
 
+/**
+ * @desc A function to update the select all label based on the number of checkboxes selected.
+ * @param {HTMLElement} selectAllLabel - The select all label.
+ * @param {NodeList} checkboxes - The checkboxes.
+ */
 const selectAllLabelComposer = (selectAllLabel, checkboxes) => {
   const checkedCount = checkboxes.filter(checkbox => checkbox.checked).length;
   if (checkedCount > 0) {
     selectAllLabel.innerText = `Selected ${checkedCount}`;
   } else {
-    selectAllLabel.innerText = 'Select All';
+    selectAllLabel.innerText = 'None Selected';
   }
 };
 
-const checkboxListener = () => {
+/**
+ * @desc A function to add event listeners to the page elements.
+ */
+const listeners = () => {
   const checkboxes = document.querySelectorAll('.checkbox:not(#select-all):not([disabled])');
+  const checkboxesArray = Array.from(checkboxes);
   const selectAll = document.getElementById('select-all');
   const selectAllLabel = document.getElementById('select-all-label');
+  const button = document.getElementById('download-button');
 
   selectAll.addEventListener('click', () => {
     checkboxes.forEach(checkbox => {
@@ -176,23 +210,38 @@ const checkboxListener = () => {
       }
     });
 
-    selectAllPartialAdder(selectAll, (Array.from(checkboxes).some(checkbox => checkbox.checked) && !Array.from(checkboxes).every(checkbox => checkbox.checked)));
+    selectAllPartialAdder(selectAll, (checkboxesArray.some(checkbox => checkbox.checked) && !checkboxesArray.every(checkbox => checkbox.checked)));
     
-    selectAllLabelComposer(selectAllLabel, Array.from(checkboxes));
+    selectAllLabelComposer(selectAllLabel, checkboxesArray);
   });
 
   checkboxes.forEach(checkbox => {
     checkbox.addEventListener('click', () => {
-      selectAll.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+      selectAll.checked = checkboxesArray.every(checkbox => checkbox.checked);
 
-      selectAllPartialAdder(selectAll, (Array.from(checkboxes).some(checkbox => checkbox.checked) && !Array.from(checkboxes).every(checkbox => checkbox.checked)));
+      selectAllPartialAdder(selectAll, (checkboxesArray.some(checkbox => checkbox.checked) && !checkboxesArray.every(checkbox => checkbox.checked)));
 
-      selectAllLabelComposer(selectAllLabel, Array.from(checkboxes));
+      selectAllLabelComposer(selectAllLabel, checkboxesArray);
     });
+  });
+
+  button.addEventListener('click', () => {
+    const checkedLabels = checkboxesArray
+      .filter(checkbox => checkbox.checked)
+      .map(checkbox => {
+        return `${checkbox.dataset.device}:\n${checkbox.dataset.path}`;
+      });
+
+    if (checkedLabels.length === 0) {
+      alert('No files selected');
+      return;
+    }
+
+    alert(checkedLabels.join('\n\n '));
   });
 };
 
 generateSelectAll();
 generateGridHeaders();
 generateGridRows();
-checkboxListener();
+listeners();

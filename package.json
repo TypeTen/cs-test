@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "public/index.html",
   "scripts": {
+    "e2e:run": "npx cypress run",
     "e2e:open": "npx cypress open",
     "build": "webpack --mode development",
     "start": "webpack serve --mode development --hot"

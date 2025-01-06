@@ -13,6 +13,7 @@
     flex-flow: row;
     border-block-end: 1px solid #cccccc;
     padding: 1rem;
+    font-size: 1.125rem;
 
     &:empty {
       display: none;
@@ -27,6 +28,7 @@
     position: relative;
     display: grid;
     grid-template-columns: 2.5rem minmax(6rem, 1fr) minmax(6rem, 1fr) minmax(10rem, 5fr) minmax(6rem, 1fr);
+    font-size: 0.875rem;
 
     &:empty {
       display: none;
@@ -43,6 +45,7 @@
 
       &[data-availability] {
         position: relative;
+        pointer-events: none;
 
         &::after {
           content: "";
@@ -57,7 +60,7 @@
 
       &[data-availability="available"] {
         &::after {
-          background: green;
+          background: #86ce3c;
         }
       }
 
@@ -65,5 +68,9 @@
         padding-inline-end: 2rem;
       }
     }
+  }
+
+  &__header {
+    font-size: 1rem;
   }
 }
