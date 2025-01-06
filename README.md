@@ -2,17 +2,28 @@
 
 Did this require webpack? No, but live edits are fantastic for developing, so I just used it because it's quick and easy to set up.
 
-## Checking it out
+## Checking it out using CLI
 
 You can either pull this repo down and just open up /public and double click index.html, or you can do these two steps and hear your computer struggle to enter orbit for a couple of seconds:
 
 `npm i`
+
 `npm run start`
+
+### Warning
+
+Doing the above requires you to delete line 9 of `/public/index.html` because of a quirk I've accidentally left in while using webpack.
+
+## Checking it out without using CLI
+
+Just double click `/public/index.html` without any of the additional work or script running.
 
 ## Running some tests in cypress
 
 `npm run start`
-[go to another terminal]
+
+then, in another terminal
+
 `npm run e2e:open`
 
 Once cypress opens up choose your browser (I typically just go for Electron), click the green button below, then click on the test.cy.js test near the centre of your window.
