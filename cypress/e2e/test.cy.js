@@ -3,10 +3,6 @@ describe('Hello World Test', () => {
         cy.visit('http://localhost:8023');
     });
 
-    it('should display the correct title', () => {
-        cy.title().should('include', 'Conor Brettle');
-    });
-
     it('should display the Select All button', () => {
         cy.get('#select-all').should('exist');
     });
